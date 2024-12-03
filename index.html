@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Position Size Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #222;
+            color: #ffffff;
+        }
+        input:focus {
+            border-color: #6200ea;
+            outline: none;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #6200ea;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3700b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            width: 300px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Position Size Calculator</h1>
+    <label for="account_size_usd">Account Size (USD):</label>
+    <input type="number" id="account_size_usd" step="0.01" required>
+
+    <label for="risk_percentage">Risk Percentage:</label>
+    <input type="number" id="risk_percentage" step="0.01" value="2" required>
+
+    <label for="entry_price">Entry Price:</label>
+    <input type="number" id="entry_price" step="0.01" required>
+
+    <label for="stop_loss_price">Stop Loss Price:</label>
+    <input type="number" id="stop_loss_price" step="0.01" required>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function calculate() {
+            const accountSizeUsd = parseFloat(document.getElementById('account_size_usd').value);
+            const riskPercentage = parseFloat(document.getElementById('risk_percentage').value);
+            const entryPrice = parseFloat(document.getElementById('entry_price').value);
+            const stopLossPrice = parseFloat(document.getElementById('stop_loss_price').value);
+            const exchangeRate = 1.05;
+
+            // Convert account size to euros
+            const accountSizeEur = accountSizeUsd * exchangeRate;
+
+            // Calculate risk per share
+            const riskPerShare = entryPrice - stopLossPrice;
+
+            // Calculate total risk in euros
+            const totalRisk = accountSizeEur * (riskPercentage / 100);
+
+            // Calculate position size
+            const positionSize = totalRisk / riskPerShare;
+
+            // Calculate capital needed to execute the trade
+            const capitalNeeded = positionSize * entryPrice;
+
+            // Display results
+            document.getElementById('result').innerHTML = `
+                <h2>Results:</h2>
+                <p>Position Size: ${positionSize.toFixed(2)} shares</p>
+                <p>Capital Needed: $${capitalNeeded.toFixed(2)}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
