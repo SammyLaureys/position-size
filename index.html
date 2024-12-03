@@ -74,7 +74,10 @@
     <input type="number" id="stop_loss_price" step="0.01" required>
 
     <label for="transaction_fee">Transaction Fee (USD):</label>
-    <input type="number" id="transaction_fee" step="0.01" value="0" required>
+    <input type="number" id="transaction_fee" step="0.01" value="1" required>
+
+    <label for="conversion_fee_percentage">Conversion Fee Percentage:</label>
+    <input type="number" id="conversion_fee_percentage" step="0.01" value="0.25" required>
 
     <button onclick="calculate()">Calculate</button>
 
@@ -87,6 +90,8 @@
             const entryPrice = parseFloat(document.getElementById('entry_price').value);
             const stopLossPrice = parseFloat(document.getElementById('stop_loss_price').value);
             const transactionFee = parseFloat(document.getElementById('transaction_fee').value);
+            const conversionFeePercentage = parseFloat(document.getElementById('conversion_fee_percentage').value) / 100; // Convert to decimal
+
             const exchangeRate = 1.05;
 
             // Convert account size to euros
@@ -98,17 +103,28 @@
             // Calculate total risk in euros (including transaction fees)
             const totalRisk = (accountSizeEur * (riskPercentage / 100)) - (2 * transactionFee);
 
-            // Calculate position size
+            // Calculate adjusted total risk for conversion fees
             const positionSize = totalRisk / riskPerShare;
+            const conversionFeeOnPosition = positionSize * entryPrice * conversionFeePercentage;
+
+            // Adjust total risk for conversion fees
+            const adjustedTotalRisk = totalRisk - (2 * conversionFeeOnPosition); // Deducting conversion fees for both opening and closing
+
+            // Calculate position size based on adjusted total risk
+            const finalPositionSize = adjustedTotalRisk / riskPerShare;
 
             // Calculate capital needed to execute the trade (including transaction fees)
-            const capitalNeeded = (positionSize * entryPrice) + (2 * transactionFee);
+            const capitalNeeded = (finalPositionSize * entryPrice) + (2 * transactionFee) + (2 * conversionFeeOnPosition);
+
+            // Calculate total fees
+            const totalFees = (2 * transactionFee) + (2 * conversionFeeOnPosition);
 
             // Display results
             document.getElementById('result').innerHTML = `
                 <h2>Results:</h2>
-                <p>Position Size: ${positionSize.toFixed(2)} shares</p>
+                <p>Position Size: ${finalPositionSize.toFixed(2)} shares</p>
                 <p>Capital Needed: $${capitalNeeded.toFixed(2)}</p>
+                <p>Total Fees: $${totalFees.toFixed(2)}</p>
             `;
         }
     </script>
